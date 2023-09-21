@@ -1,0 +1,67 @@
+create or replace package user_management_pkg as
+  -- Procedure for inserting a new user
+  procedure insert_user(
+    p_username varchar2,
+    p_email varchar2,
+    p_user_role varchar2,
+    p_password_hash varchar2
+  );
+
+  -- Procedure for updating user information
+  procedure update_user(
+    p_user_id number,
+    p_username varchar2,
+    p_email varchar2,
+    p_user_role varchar2,
+    p_password_hash varchar2
+  );
+
+  -- Procedure for deleting a user
+  procedure delete_user(p_user_id number);
+
+  -- Procedure for inserting access control information
+  procedure insert_access_control(
+    p_permission_level varchar2,
+    p_user_id number
+  );
+
+  -- Procedure for inserting a new project
+  procedure insert_project(
+    p_project_name varchar2,
+    p_project_description clob,
+    p_project_manager varchar2
+  );
+
+  -- Procedure for inserting a new priority
+  procedure insert_priority(p_priority_name varchar2);
+
+  -- Procedure for inserting a new task
+  procedure insert_task(
+    p_task_name varchar2,
+    p_task_description clob,
+    p_due_date date,
+    p_user_id number,
+    p_project_id number,
+    p_priority_id number
+  );
+  
+  -- Procedure for deleting a task
+  procedure delete_task(p_task_id number);
+
+  -- Procedure for inserting a new notification
+  procedure insert_notification(
+    p_not_type varchar2,
+    p_message clob,
+    p_user_id number
+  );
+
+  -- Procedure for inserting a new comment
+  procedure insert_comment(
+    p_comment_text clob,
+    p_user_id number,
+    p_task_id number
+  );
+  
+  -- Add other procedures as needed for updates, deletes, etc.
+
+end user_management_pkg;
