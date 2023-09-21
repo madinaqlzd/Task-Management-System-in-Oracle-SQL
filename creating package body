@@ -1,0 +1,196 @@
+create or replace package body user_management_pkg as
+  -- Procedure for inserting a new user
+  procedure insert_user(
+    p_username varchar2,
+    p_email varchar2,
+    p_user_role varchar2,
+    p_password_hash varchar2
+  ) is
+  begin
+    insert into Users (username, email, user_role, password_hash, register_date)
+    values (p_username, p_email, p_user_role, p_password_hash, sysdate);
+    commit;
+  exception
+  -- Catch unique constraint violation (email should be unique)
+  when dup_val_on_index then
+    dbms_output.put_line('Error: ' ||sqlerrm);
+    
+  when others then
+    rollback; 
+  end insert_user;
+
+  -- Procedure for updating user information
+  procedure update_user(
+    p_user_id number,
+    p_username varchar2,
+    p_email varchar2,
+    p_user_role varchar2,
+    p_password_hash varchar2
+  ) is
+  begin
+  update Users
+  set
+    username = p_username,
+    email = p_email,
+    user_role = p_user_role,
+    password_hash = p_password_hash
+  where
+    user_id = p_user_id;
+
+  -- Check the number of rows affected
+  if sql%rowcount = 0 then
+    raise_application_error(-20001, 'User not found.');
+  else
+    dbms_output.put_line('Rows were updated');
+    commit;
+  end if;
+  exception
+    when others then
+    rollback; 
+    dbms_output.put_line('Error: ' ||sqlerrm);
+  end update_user;
+
+  -- Procedure for deleting a user
+  procedure delete_user(p_user_id number) is
+  begin
+  delete from Users where user_id = p_user_id;
+
+  -- Check the number of rows affected
+  if sql%rowcount = 0 then
+    raise_application_error(-20002, 'User not found.');
+  else
+    dbms_output.put_line('Rows were deleted');
+    commit;
+  end if;
+  exception
+    when others then
+    rollback; 
+    dbms_output.put_line('Error: ' ||sqlerrm);
+  end delete_user;
+  
+  -- Procedure for inserting access control information
+  procedure insert_access_control(
+    p_permission_level varchar2,
+    p_user_id number
+  )is
+  begin
+  
+  insert into accesscontrol (permission_level, user_id)
+  values (p_permission_level, p_user_id);
+
+  commit;
+  exception
+    when dup_val_on_index then
+    raise_application_error(-20003, 'Permission level already exists for this user.');
+  when others then
+    rollback; 
+  end insert_access_control;
+  
+  -- Procedure for inserting a new project
+  procedure insert_project(
+    p_project_name varchar2,
+    p_project_description clob,
+    p_project_manager varchar2
+  )is
+  begin
+    
+  insert into Projects (project_name, project_description, project_manager)
+  values (p_project_name, p_project_description, p_project_manager);
+
+  commit;
+  exception
+    when dup_val_on_index then
+    raise_application_error(-20004, 'Project name already exists.');
+  when others then
+    rollback;
+  end insert_project;
+  
+  -- Procedure for inserting a new priority
+  procedure insert_priority(p_priority_name varchar2)is
+  begin
+    insert into Priority (priority_name)
+    values (p_priority_name);
+
+  commit;
+  exception
+    when dup_val_on_index then
+    raise_application_error(-20005, 'Priority name already exists.');
+    when others then
+    rollback;
+  end insert_priority;
+  
+  -- Procedure for inserting a new task
+  procedure insert_task(
+    p_task_name varchar2,
+    p_task_description clob,
+    p_due_date date,
+    p_user_id number,
+    p_project_id number,
+    p_priority_id number
+  )is
+  begin
+  insert into Tasks (task_name, task_description, due_date, user_id, project_id, priority_id)
+  values (p_task_name, p_task_description, p_due_date, p_user_id, p_project_id, p_priority_id);
+
+  commit;
+  exception
+    when dup_val_on_index then
+    raise_application_error(-20006, 'Task name already exists.');
+    when others then
+    rollback;
+  end insert_task;
+  
+  -- Procedure for deleting a task
+  procedure delete_task(p_task_id number)is
+  begin
+  delete from Tasks where task_id = p_task_id;
+
+  -- Check the number of rows affected
+  if sql%rowcount = 0 then
+    raise_application_error(-20007, 'Task not found.');
+  else
+    dbms_output.put_line('Rows were deleted.');
+    
+    commit;
+  end if;
+  exception
+    when others then
+    rollback;
+    dbms_output.put_line('Error: ' ||sqlerrm);
+  end delete_task;
+
+  -- Procedure for inserting a new notification
+  procedure insert_notification(
+    p_not_type varchar2,
+    p_message clob,
+    p_user_id number
+  )is
+  begin
+  insert into Notifications (not_type, message, not_time, user_id)
+  values (p_not_type, p_message, systimestamp, p_user_id);
+
+  commit;
+  exception
+    when others then
+    rollback;
+    dbms_output.put_line('Error: ' ||sqlerrm);
+  end insert_notification;
+
+  -- Procedure for inserting a new comment
+  procedure insert_comment(
+    p_comment_text clob,
+    p_user_id number,
+    p_task_id number
+  )is
+  begin
+  insert into Comments (comment_text, comment_time, user_id, task_id)
+  values (p_comment_text, systimestamp, p_user_id, p_task_id);
+
+  commit;
+  exception
+    when others then
+    rollback;
+    dbms_output.put_line('Error: ' ||sqlerrm);
+  end insert_comment;
+  
+end user_management_pkg;
