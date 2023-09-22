@@ -1,0 +1,78 @@
+-- Insert a new user
+INSERT INTO Users (username, email, user_role, password_hash, register_date)
+VALUES ('ChrisWiner', 'chriswiner@gmaile.com', 'Coordinator', 'hashed_password_2', TO_DATE('2023-09-21', 'YYYY-MM-DD'));
+commit;
+begin
+    user_management_pkg.insert_user('AngelSeul', 'angelseul@gmaile.com', 'Manager', 'hashed_password_5');
+end;
+select *from users;
+
+-- Insert access control information 
+INSERT INTO Accesscontrol (permission_level, user_id)
+SELECT 'Coordinator', user_id
+FROM Users
+WHERE username = 'ChrisWiner';
+commit;
+begin
+    user_management_pkg.insert_access_control('Admin', 21);
+end;
+select *from Accesscontrol;
+
+-- Insert a new project
+INSERT INTO Projects (project_name, project_description, project_manager)
+VALUES ('Project 1', 'Description of Project 1', 'EmmaVatson');
+INSERT INTO Projects (project_name, project_description, project_manager)
+VALUES ('Project 2', 'Description of Project 2', 'EmmaVatson');
+commit;
+begin
+    user_management_pkg.insert_project('Project 3', 'Description of Project 3', 'AngelSeul');
+end;
+select * from Projects;
+
+-- Insert a new priority
+INSERT INTO Priority (priority_id, priority_name)
+VALUES (1, 'High');
+INSERT INTO Priority (priority_id, priority_name)
+VALUES (2, 'Low');
+commit;
+
+-- Insert a new task
+INSERT INTO Tasks (task_name, task_description, due_date, user_id, project_id, priority_id)
+SELECT
+  'Task 1', 'Description of Task 1', TO_DATE('2023-09-30', 'YYYY-MM-DD'),
+  (SELECT user_id FROM Users WHERE username = 'EmmaVatson'),
+  (SELECT project_id FROM Projects WHERE project_name = 'Project 1'),
+  (SELECT priority_id FROM Priority WHERE priority_name = 'High')
+FROM dual;
+INSERT INTO Tasks (task_name, task_description, due_date, user_id, project_id, priority_id)
+SELECT
+  'Task 2', 'Description of Task 2', TO_DATE('2023-09-30', 'YYYY-MM-DD'),
+  (SELECT user_id FROM Users WHERE username = 'ChrisWiner'),
+  (SELECT project_id FROM Projects WHERE project_name = 'Project 2'),
+  (SELECT priority_id FROM Priority WHERE priority_name = 'High')
+FROM dual;
+commit;
+begin
+    user_management_pkg.insert_task('Task 3', 'Description of Task 3', TO_DATE('2023-09-30', 'YYYY-MM-DD'), 24, 22, 2);
+end;
+select * from tasks;
+
+-- Insert a new notification
+INSERT INTO Notifications (not_type, message, not_time, user_id)
+SELECT 'Info', 'New message received', SYSTIMESTAMP,         
+  (SELECT user_id FROM Users WHERE username = 'EmmaVatson')
+FROM dual;
+commit;
+
+-- Insert a new comment
+INSERT INTO Comments (comment_text, comment_time, user_id, task_id)
+SELECT 'This is a comment.', SYSTIMESTAMP,
+  (SELECT user_id FROM Users WHERE username = 'EmmaVatson'),
+  (SELECT task_id FROM Tasks WHERE task_name = 'Task 1')
+FROM dual;
+commit;
+
+-- Insert an error log entry
+INSERT INTO Error_log (calling_program, error_code, error_description, logged_user)
+VALUES ('ApplicationX', 1001, 'Error occurred in module A.', 'EmmaVatson');
+commit;
