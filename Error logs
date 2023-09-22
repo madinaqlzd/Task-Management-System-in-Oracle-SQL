@@ -1,0 +1,33 @@
+create table Error_log (
+  log_id number generated always as identity primary key,
+  calling_program varchar2(255),
+  error_code number,
+  error_description varchar2(4000),
+  log_timestamp timestamp default systimestamp,
+  logged_user varchar2(30)
+);
+
+create or replace package error_log_package as
+  -- Insert trigger procedure
+  procedure log_error_insert(
+    p_calling_program varchar2,
+    p_error_code number,
+    p_error_description varchar2,
+    p_logged_user varchar2
+  );
+end error_log_package;
+
+
+create or replace package body error_log_package as
+  -- Insert trigger procedure
+  procedure log_error_insert(
+    p_calling_program varchar2,
+    p_error_code number,
+    p_error_description varchar2,
+    p_logged_user varchar2
+  ) is
+  begin
+    insert into Error_log (calling_program, error_code, error_description, logged_user)
+    values (p_calling_program, p_error_code, p_error_description, p_logged_user);
+  end;
+end error_log_package;
