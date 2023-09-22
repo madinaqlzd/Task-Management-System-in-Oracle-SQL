@@ -1,0 +1,31 @@
+create view Users_View as
+select user_id, username, email, user_role, register_date
+from Users;
+
+create view Accesscontrol_View as
+select access_id, permission_level, user_id
+from Accesscontrol;
+
+create view Projects_View as
+select project_id, project_name, project_description, project_manager
+from Projects;
+
+create view Priority_View as
+select priority_id, priority_name
+from Priority;
+
+create view Tasks_View as
+select task_id, task_name, task_description, due_date, user_id, project_id, priority_id
+from Tasks;
+
+create view Notifications_View as
+select not_id, not_type, message, not_time, user_id
+from Notifications;
+
+create view Comments_View as
+select comment_id, comment_text, comment_time, user_id, task_id
+FROM Comments;
+
+create view Error_log_View as
+select log_id, calling_program, error_code, error_description, log_timestamp, logged_user
+from Error_log;
